@@ -1,0 +1,11 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" tools:context=".Activity.Login">
+
+    <item
+        android:id="@+id/logout"
+        android:title="Log ud"
+        android:onClick="logout"
+        android:showAsAction="ifRoom"
+        />
+
+</menu>

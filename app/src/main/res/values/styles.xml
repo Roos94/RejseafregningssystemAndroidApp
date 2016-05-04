@@ -1,0 +1,9 @@
+<resources>
+
+    <style name="AppTheme" parent="android:Theme.Holo.Light">
+    </style>
+
+    <style name="Splash" parent="android:Theme.DeviceDefault.Light.NoActionBar">
+    </style>
+
+</resources>
