@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -14,6 +15,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.dtu.smmac.rejseafregningssystem.Logic.API;
 import com.dtu.smmac.rejseafregningssystem.R;
@@ -24,7 +26,7 @@ import com.dtu.smmac.rejseafregningssystem.R;
 public class Bruger extends Activity implements View.OnClickListener {
 
     private Intent login;
-    private String brugernavn, kode;
+    private String brugernavn, kode, strApi;
     private TextView txtApi;
     private EditText tlf;
     private Button btnTlf;
@@ -43,6 +45,7 @@ public class Bruger extends Activity implements View.OnClickListener {
 
         this.brugernavn = getIntent().getStringExtra("brugernavn");
         this.kode = getIntent().getStringExtra("kode");
+        this.strApi = getIntent().getStringExtra("api");
 
         this.progress = (ProgressBar) findViewById(R.id.pronew);
         this.progress.setVisibility(View.INVISIBLE);
@@ -53,7 +56,7 @@ public class Bruger extends Activity implements View.OnClickListener {
         this.save = "Gem";
 
         this.txtApi = (TextView) findViewById(R.id.txtApi);
-        this.txtApi.setText(getIntent().getStringExtra("api"));
+        this.txtApi.setText(this.strApi);
         this.txtApi.setTextSize(20);
         this.txtApi.setTextColor(Color.BLACK);
 
@@ -86,30 +89,40 @@ public class Bruger extends Activity implements View.OnClickListener {
             this.btnTlf.setText(save);
             this.tlf.setVisibility(View.VISIBLE);
         } else if (this.btnTlf.getText().toString().equals(save)) {
-            if (this.click) {
-                this.click = false;
-                this.progress.setVisibility(View.VISIBLE);
 
-                new AsyncTask() {
-                    @Override
-                    protected Object doInBackground(Object[] params) {
-                        //TODO mangler at POST tlf nummer
-                        hideSoftKeyboard(Bruger.this);
-                        return null;
-                    }
+            final String strTlf = tlf.getText().toString();
 
-                    @Override
-                    protected void onPostExecute(Object resultat) {
-                        btnTlf.setText(change);
-                        tlf.setVisibility(View.INVISIBLE);
-                        tlf.setText("");
-                        progress.setVisibility(View.INVISIBLE);
-                        click = true;
-                    }
-                }.execute();
+            if (TextUtils.isDigitsOnly(strTlf) && !strTlf.isEmpty()) {
+                if (this.click) {
+                    this.click = false;
+                    this.progress.setVisibility(View.VISIBLE);
+
+                    new AsyncTask() {
+                        @Override
+                        protected Object doInBackground(Object[] params) {
+                            Splash.api.changeTlf(brugernavn, kode, strTlf);
+                            strApi = Splash.api.login(brugernavn, kode);
+                            hideSoftKeyboard(Bruger.this);
+                            return null;
+                        }
+
+                        @Override
+                        protected void onPostExecute(Object resultat) {
+                            btnTlf.setText(change);
+                            txtApi.setText(strApi);
+                            tlf.setVisibility(View.INVISIBLE);
+                            tlf.setText("");
+                            progress.setVisibility(View.INVISIBLE);
+                            click = true;
+                        }
+                    }.execute();
+                }
+            } else {
+                Toast.makeText(getApplicationContext(), "Telefonnummeret skal være tal", Toast.LENGTH_SHORT).show();
             }
         }
     }
+
 
     public void hideSoftKeyboard(Activity activity)
     {
